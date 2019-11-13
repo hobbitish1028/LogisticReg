@@ -28,70 +28,11 @@
 
 
 Logistic<-function(X, y, max_ite = 5000, alpha = 1){
-  
-  m_nosadam<-0
-  v_nosadam<-1
-  x<-rep(0,p+1)
-  X<-cbind(rep(1,dim(X)[1]),X)
-  #test_x<-cbind(rep(1,dim(test_x)[1]),test_x)
-  alpha_nosadam<-5e-2
-  beta_1<-0.9
-  #times<-max_ite
-  times<-5000
-  gamma<-1e-2
-  B<-cumsum((1:(1+times))^(-gamma))
-  loss<-rep(0,times)
-  error<-rep(0,times)
-  lambda<-exp(-8)
-  
-  for(i in 1:times){
-    beta_2<-B[i]/B[i+1]
-    gradient<-Gradient(X,x,y)
-    m_nosadam <- m_nosadam * beta_1 + (1-beta_1) * gradient
-    v_nosadam <- v_nosadam * beta_2 + (1-beta_2) *gradient^2
-    
-    tmp<- abs(gradient)>lambda
-    x<- tmp * ( x - alpha_nosadam / sqrt(i) * m_nosadam / sqrt(v_nosadam)      )
-    
-    loss[i]<-LOSS(X,x,y)
-    loss[i]<-LOSS(X,x,y)
-    if(i>=10 ){
-      error[i]<-var(loss[(i-9):i])
-      if(!is.na(error[i]) && error[i]<1e-3){
-        break
-      }
-    }
-  }
-  
-  predict0<- exp(X%*%x)>=1
-  train_acc_nosadam<-mean(predict0==y)
-  
-  result<-list()
-  result$beta<-x
-  result$loss<-loss[1:i]
-  result$Train_Acc<-train_acc_nosadam
-  
+
   return(result)
   
 }
 
-Gradient<-function(X,x,y){
-  P0<-exp(X%*%x)
-  P<<-P0/(1+P0)
-  return( -t(X)%*%(y-P) )
-}
-
-Gradient2<-function(X,x,y){
-  P0<-exp(eigenMapMatMult(X, x))
-  P<<-P0/(1+P0)
-  return( -t(X)%*%(y-P) )
-}
-
-LOSS<-function(X,x,y){
-  P1<-log(P)
-  P0<-log(1-P)
-  sum( -P1*(y==1) - P0*(y==0)    )
-}
 
 options(warnings = -1)
 library(Rcpp)
@@ -100,12 +41,11 @@ library(RcppEigen)
 sourceCpp("./src/Matrix_multiply.cpp")
 sourceCpp("./src/rcppeigen_hello_world.cpp")
 
+aaa(matrix(1:6,3,2),1:2)
+
+bbb(matrix(1:6,3,2),3:1)
+
 eigenadd(0,matrix(1:4,2,2))
-
-
-aaa(matrix(1:6,3,2),1:2,3,2)
-multi(matrix(1:6,2,3),1:3,2,3)
-multi2(t(matrix(1:6,2,3)) ,1:3,2,3)
 
 multiply(matrix(1:4,2,2),1:2)
 
