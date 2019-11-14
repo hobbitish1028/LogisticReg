@@ -68,12 +68,17 @@ test_y<-rep(c(1,0),each=n)
 
 
 ## How to use LogReg Function
+Under most of the condition, we only need to input the n by p data matrix $X_{n,p}$ and binomial result $Y_n$ (whose value is 0 or 1). 
+
+
 
 ```{r}
-t1<-proc.time()
 fit<-Logreg(X,y)
-proc.time()-t1
+```
 
+We can judge the convergence of algorithm by plotting the loss function. My function will judge by itself and stop when it converges. And the default maximal iteration number is 5000. In the application, if the result diverge according to the plot, we can tune the parameter maxit until it converges, which is important to achieve a great prediction. (As for the optimization detail, we use adam-like algorithm, which is quite stable and converges quickly. Different from SGD, it is less sensitive to parameter, and the default parameter can deal with most of the condition.)
+
+```{r}
 plot(fit$loss,main = "Convergence of the result",xlab = "iteration",ylab = "-loglikelihood")
 
 plot(fit$P[c(1:100,1e4+(1:100))],main="Probability Distribution (Prediction)",xlab = "sample number",ylab = "probability of group 1")
@@ -98,6 +103,8 @@ mean(my_prediction == test_y)
 
 
 ## GLMNET Package
+Glmnet is famous package, which use fortran to speed up the calculation, and it values as a frequently used package for statistican. But when dealing with big data, we can't judge the convergence of it, thus we may get a less satisfying result.
+
 ```{r}
 t1<-proc.time()
 fit0<-glmnet(X,y,family = "binomial")
@@ -115,6 +122,11 @@ mean(result2==y)
 result2<- predict(fit0, newx = test_x,  type = "class")
 mean(result2==test_y)
 ```
+
+
+## CV.glmnet
+
+Cv.glmnet is a very strong function with great maturity. It uses lasso & ridge penalty to improve the result and avoid overfitting, and cross validation is introduced to avoid the trouble of tuning. However, it may thus cost much more time as tradeoff.
 
 ```{r}
 t1<-proc.time()
@@ -135,6 +147,7 @@ mean(result2==test_y)
 ```
 
 
+## Comparison between three method
 ```{r,echo=FALSE}
 
 class <- rep(c("train","test"),3)
@@ -161,3 +174,14 @@ ggplot(
   )+coord_cartesian( ylim = c(0.90, 0.97))+ggtitle("Comparison between three models") +
   theme(plot.title = element_text(hjust = 0.5))
 ```
+
+|    	|	My LogReg |Glmnet|cv.glmnet|
+|  ----  		| ----  |---|-----|
+| time   	| 5.37 | 2.17 | 19.31|
+
+We can infer from the plot that glmnet may fail to converge under the condition of big data, which may result from its stopping before convergence (which also explains why it takes less time).
+
+With lasso penalty and cross validation, cv.glmnet doesn't overfit, and its accuracy of test data is even higher than that of the train data. But it is very time-expensive.
+
+My Logistic regression doesn't overfit, either. We may attribute it to the superiority of optimization algorithm (which is stable and likely to converge to global minimal rather than local minimal, thus avoiding overfitting). Besides, because it is adam-like algorithm, it converges quickly and thus needs fewer iteration. So it converges quickly.
+

@@ -118,12 +118,7 @@ My_predict<-function(fit,newx){
   return( as.numeric(result>0))
 }
 
-
-#### examples
-
-### generating data
 sigma<-4
-
 set.seed(1)
 n<-1e4
 p<-1e2
@@ -135,30 +130,28 @@ X2<-matrix(mu2+rnorm(n*p,0,sigma),n,p,byrow = TRUE)
 X<-rbind(X1,X2)
 y<-rep(c(1,0),each=n)
 ### Test data
-test_x<-rbind( matrix(mu1+rnorm(n*p,0,sigma),n,p,byrow = TRUE), matrix(mu2+rnorm(n*p,0,sigma),n,p,byrow = TRUE)  )
+test_x<-rbind( matrix(mu1+rnorm(n*p,0,sigma),n,p,byrow = TRUE), 
+               matrix(mu2+rnorm(n*p,0,sigma),n,p,byrow = TRUE)  )
 test_y<-rep(c(1,0),each=n)
 
+##Accuracy of the training data and testing data
 
-### Train with R
-t1<-proc.time()
-result1<-Logistic(X,y)
-proc.time()-t1
-
-plot(result1$loss)
-result1$Train_Acc
-#######################
-### Train with Rcpp
 t1<-proc.time()
 fit<-Logreg(X,y)
 proc.time()-t1
 
-plot(fit$loss)
-plot(fit$P)
-fit$accuracy
+plot(fit$loss,main = "Convergence of the result")
 
+plot(fit$P[c(1:100,1e4+(1:100))],"Probability (Prediction)")
 my_prediction<-My_predict(fit,newx = test_x)
+fit$accuracy
 mean(my_prediction == test_y)
 
+
+
+
+## GLMNET Package
+```{r}
 library(glmnet)
 
 ### result of glmnet 
@@ -182,3 +175,31 @@ mean(result2==y)
 ### test accuracy
 result2<- predict(fit0, newx = test_x,  type = "class")
 mean(result2==test_y)
+```
+
+library(dplyr)
+library(ggplot2)
+
+class <- rep(c("train","test"),3)
+accuracy<-c(0.95585,0.9564,0.9208,0.92072,0.9207,0.95575)
+method<- rep(c("My_LogReg","glmnet","cv.glmnet"),each=2)
+dat<-data.frame(class,accuracy,method)
+
+ggplot(
+  dat %>%
+    filter(
+      class %in% c("train","test")
+    ) %>% group_by(method,class) %>% summarize(
+      acc = accuracy
+    )
+)+ aes(
+  x=method,
+  y=acc)+
+  labs(
+    x="Method",
+    y="Accuracy"
+  )+ geom_col(
+    aes(fill=factor(class)),
+    position='dodge'
+  )+coord_cartesian( ylim = c(0.90, 0.97))+ggtitle("Comparison between three models") +
+  theme(plot.title = element_text(hjust = 0.5))
