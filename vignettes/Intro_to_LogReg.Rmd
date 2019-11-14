@@ -67,7 +67,7 @@ test_y<-rep(c(1,0),each=n)
 ```
 
 
-## How to use LogReg Function
+## How to use `LogReg` Function
 Under most of the condition, we only need to input the n by p data matrix $X_{n,p}$ and binomial result $Y_n$ (whose value is 0 or 1). 
 
 
@@ -79,7 +79,7 @@ t1<-proc.time()-t0
 
 ```
 
-We can judge the convergence of algorithm by plotting the loss function. My function will judge by itself and stop when it converges. And the default maximal iteration number is 5000. In the application, if the results diverge according to the plot, we can tune the parameter maxit until it converges (increase the "maxit" value), which is important to achieve a great prediction. (As for the optimization detail, we use adam-like algorithm, which is quite stable and converges quickly. Different from SGD, it is less sensitive to parameter, and the default parameter can already deal with most of the condition.)
+We can judge the convergence of algorithm by plotting the loss function. My function will judge by itself and stop when it converges. And the default maximal iteration number is 5000. In the application, if the results diverge according to the plot, we can tune the parameter maxit until it converges (increase the `maxit` value), which is important to achieve a great prediction. (As for the optimization detail, we use adam-like algorithm, which is quite stable and converges quickly. Different from SGD, it is less sensitive to parameter, and the default parameter can already deal with most of the condition.)
 
 ```{r}
 plot(fit$loss,main = "Convergence",xlab = "iteration",ylab = "-loglikelihood")
@@ -90,7 +90,7 @@ plot(fit$P[c(1:100,1e4+(1:100))],main="Probability (Prediction)",xlab = "sample 
 
 ##How to predict with my package
 
-We need to get the trained model(fit) first by using the above LogReg function. Then we just need two inputs (fit and the test matrix) to make a new prediction. The training accuracy is saved in fit\$accuracy and the training result (the estimate of parameter) is saved in fit\$x.
+We need to get the trained model(`fit`) first by using the above LogReg function. Then we just need two inputs (fit and the test matrix) to make a new prediction. The training accuracy is saved in `fit$accuracy` and the training result (the estimate of parameter) is saved in `fit$x`.
 
 ```{r}
 my_prediction<-My_predict(fit,newx = test_x)

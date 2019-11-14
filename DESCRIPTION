@@ -1,14 +1,20 @@
 Package: Logistic_Reg
 Type: Package
 Title: Binomial Logistic Regression
-Version: 0.0.0. 9000
+Version: 0.1
 Date: 2019-11-09
 Author: Chang Wang
 Maintainer: Chang Wang <wangchan@umich.edu>
 Description: Perform Binomial Logistic Regression
 License: GPL-2
-Imports: Rcpp (>= 1.0.2), glmnet,dplyr,ggplot2
-LinkingTo: Rcpp, glmnet,dplyr,ggplot2
+Imports:  Rcpp (>= 1.0.2),
+          glmnet,
+          dplyr,
+          ggplot2
+LinkingTo: Rcpp, 
+          glmnet,
+          dplyr,
+          ggplot2
 RoxygenNote: 6.1.1
 Suggests: 
     knitr,
