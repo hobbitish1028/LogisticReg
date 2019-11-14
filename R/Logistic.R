@@ -27,6 +27,8 @@
 #'   @param Train_Acc the accuracy of the train set, defined as (number of right prediction divided by sample size)
 
 library(Rcpp)
+devtools::install_github("hobbitish1028/Logistic_Reg")
+
 
 Logistic<-function(X, y, max_ite = 5000, alpha = 1){
   
