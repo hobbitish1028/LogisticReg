@@ -1,7 +1,7 @@
-Package: Logistic_package
+Package: Logistic_Reg
 Type: Package
 Title: Binomial Logistic Regression
-Version: 1.0
+Version: 0.5 - 1 
 Date: 2019-11-09
 Author: Chang Wang
 Maintainer: Chang Wang <wangchan@umich.edu>
