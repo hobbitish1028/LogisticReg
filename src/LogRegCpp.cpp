@@ -112,10 +112,7 @@ List LogRegcpp(NumericMatrix X, NumericVector x, NumericVector y ,int maxit){
   }
   
   return Rcpp::List::create(Rcpp::Named("x") = x,
-                            Rcpp::Named("beta_2") = beta_2,
                             Rcpp::Named("P") = P,
-                            Rcpp::Named("m") = m,
-                            Rcpp::Named("v") = v,
                             Rcpp::Named("loss") = loss);
 }
 

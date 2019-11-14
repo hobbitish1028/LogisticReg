@@ -171,7 +171,7 @@ ggplot(
   )+ geom_col(
     aes(fill=factor(class)),
     position='dodge'
-  )+coord_cartesian( ylim = c(0.90, 0.97))+ggtitle("Comparison between three models") +
+  )+coord_cartesian( ylim = c(0.90, 0.97))+ggtitle("Comparison (three models)") +
   theme(plot.title = element_text(hjust = 0.5))
 ```
 
