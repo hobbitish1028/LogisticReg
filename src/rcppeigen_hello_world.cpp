@@ -16,6 +16,27 @@ using namespace Rcpp;
 // available from R
 
 
+double muRcpp(NumericVector x){
+  int n = x.size();
+  double s = 0; 
+  for(int i = 0; i < n; i++){
+      s += x[i]; 
+  }
+  return s/n; 
+}
+
+double varRcpp(NumericVector x){
+  double mean = muRcpp(x);
+  double s = 0;
+  int n = x.size();
+  for(int i = 0; i < n; i++){
+    s += pow(x[i] - mean, 2.0);
+  }
+  return s/n; 
+}
+  
+  
+
 Rcpp:: NumericVector multi(Rcpp:: NumericMatrix X, Rcpp:: NumericVector beta, int nsites, int p){
   
   Rcpp:: NumericVector result(nsites);
@@ -59,7 +80,7 @@ List LogRegcpp(NumericMatrix X, NumericVector x, NumericVector y ,int maxit){
   int times = maxit;
   double gamma = 1e-2;
   
-  NumericVector B(times+1); 
+  NumericVector B(times+100); 
   B[0] = 1;
   for(int i=1;i<times+100;i++){
     B[i] = B[i-1] + pow( i,-gamma);  
@@ -75,18 +96,16 @@ List LogRegcpp(NumericMatrix X, NumericVector x, NumericVector y ,int maxit){
   
   for(int i=1; i < times ; i++){
     beta_2 = B[i+50] / B[i+51];
-    
     NumericMatrix A1 = X;
     NumericVector B1 = x;
     NumericVector P0 =  multi(X ,x,n,p);
   
-    //P0 = eigenMapMatMult(X ,x);
     for(int i=0;i<n;i++){
-      if(P0[i] < -5){
-        P0[i] = -5;
+      if(P0[i] < -10){
+        P0[i] = -10;
       }
-      if(P0[i] > 5){
-        P0[i] = 5;
+      if(P0[i] > 10){
+        P0[i] = 10;
       }
     }
     P0 = exp(-P0);
@@ -100,7 +119,7 @@ List LogRegcpp(NumericMatrix X, NumericVector x, NumericVector y ,int maxit){
     m = m * beta_1 + (1-beta_1) * gradient;
     v = v * beta_2 + (1-beta_2) * pow(gradient,2.0);
     
-    x =   x + alpha / sqrt(i) * m / sqrt(v);
+    x =   x - alpha / sqrt(i) * m / sqrt(v);
     
 
     NumericVector P1 = log(P);
@@ -113,9 +132,27 @@ List LogRegcpp(NumericMatrix X, NumericVector x, NumericVector y ,int maxit){
         loss0  -= P1[j];
       }
     }
-    loss[i] = loss0;
+    loss[i] = loss0;  // Loss function is the log likelihood
       
-
+  if( i>20 ){
+    double mu = 0; 
+    for(int j = i-10; j < i; j++){
+      mu += loss[j]; 
+    }
+    mu = mu /10;
+    double s = 0;
+    for(int j = i-10; j < i; j++){
+      s += pow(loss[i] - mu, 2.0);
+    }  
+    s = s/10;
+    // if the loss converge, the break
+    if(s < 0.001){
+      break;
+    }
+    
+  }
+  
+  
 }
   
   return Rcpp::List::create(Rcpp::Named("x") = x,
@@ -123,8 +160,7 @@ List LogRegcpp(NumericMatrix X, NumericVector x, NumericVector y ,int maxit){
                             Rcpp::Named("P") = P,
                             Rcpp::Named("m") = m,
                             Rcpp::Named("v") = v,
-                            Rcpp::Named("gradient") = gradient,
-                              Rcpp::Named("P0") = P0);
+                            Rcpp::Named("loss") = loss);
   //return P0;
 }
 

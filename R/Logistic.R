@@ -93,51 +93,89 @@ LOSS<-function(X,x,y){
   sum( -P1*(y==1) - P0*(y==0)    )
 }
 
-options(warnings = -1)
+
 library(Rcpp)
 library(RcppEigen)
-
-sourceCpp("./src/Matrix_multiply.cpp")
-sourceCpp("./src/rcppeigen_hello_world.cpp")
-
-eigenadd(0,matrix(1:4,2,2))
-
-
-aaa(matrix(1:6,3,2),1:2,3,2)
-multi(matrix(1:6,2,3),1:3,2,3)
-multi2(t(matrix(1:6,2,3)) ,1:3,2,3)
-
-multiply(matrix(1:4,2,2),1:2)
-
-rcppeigen_hello_world()
-rcppeigen_bothproducts(1:3)
 
 sigma<-4
 
 set.seed(1)
-n<-1e2
+n<-1e4
 p<-1e2
 mu1<-rnorm(p)
 mu2<-rnorm(p)
 X1<-matrix(mu1+rnorm(n*p,0,sigma),n,p,byrow = TRUE)
 X2<-matrix(mu2+rnorm(n*p,0,sigma),n,p,byrow = TRUE)
+### Train data
 X<-rbind(X1,X2)
-
 y<-rep(c(1,0),each=n)
-
+### Test data
 test_x<-rbind( matrix(mu1+rnorm(n*p,0,sigma),n,p,byrow = TRUE), matrix(mu2+rnorm(n*p,0,sigma),n,p,byrow = TRUE)  )
 test_y<-rep(c(1,0),each=n)
 
 
-t1<-proc.time()
-result1<-LogRegcpp(X,rep(0,p),y,maxit=5000)
-proc.time()-t1
 
+Logreg<-function(X,y,maxit = 5000){
+  n<-dim(X)[1]
+  X<-cbind(rep(0,n),X)
+  p<-dim(X)[2]
+  ### Use rcpp
+  result <- LogRegcpp(X,rep(0,p),y,maxit = maxit)
+  result$loss <- result$loss[result$loss !=0 ]
+  result$prediction <- result$P > 0.5
+  result$accuracy <- mean(result$prediction == y)
+  
+  return(result)
+}
 
+My_predict<-function(fit,newx){
+  n<-dim(newx)[1]
+  X<-cbind(rep(0,n),newx)
+  p<-dim(X)[2]
+  result <- X%*%fit$x
+  return( as.numeric(result>0))
+}
+
+### Train with R
 t1<-proc.time()
 result1<-Logistic(X,y)
 proc.time()-t1
 
 plot(result1$loss)
+result1$Train_Acc
+#######################
+### Train with Rcpp
+t1<-proc.time()
+fit<-Logreg(X,y)
+proc.time()-t1
 
+plot(result1$loss)
+plot(result1$P)
+result1$accuracy
 
+my_prediction<-My_predict(fit,newx = test_x)
+mean(my_prediction == test_y)
+
+library(glmnet)
+
+### result of glmnet 
+### train accuracy
+t1<-proc.time()
+fit0<-glmnet(X,y,family = "binomial")
+result2<- predict(fit0, newx = X,  type = "class")
+proc.time()-t1
+mean(result2==y)
+### test accuracy
+result2<- predict(fit0, newx = test_x,  type = "class")
+mean(result2==test_y)
+
+### result of cv.glmnet
+### train accuracy
+t1<-proc.time()
+fit0<-cv.glmnet(X,y,family = "binomial")
+result3<- predict(fit0, newx = X,  type = "class")
+proc.time()-t1
+mean(result2==y)
+### test accuracy
+result2<- predict(fit0, newx = test_x,  type = "class")
+mean(result2==test_y)
