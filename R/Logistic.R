@@ -101,12 +101,19 @@ Logreg<-function(X,y,maxit = 5000){
   n<-dim(X)[1]
   X<-cbind(rep(0,n),X)
   p<-dim(X)[2]
+  
+  output<-unique(y)
+  yy<- as.numeric(y==output[1])
+
   ### Use rcpp
-  result <- LogRegcpp(X,rep(0,p),y,maxit = maxit)
+  result <- LogRegcpp(X,rep(0,p),yy,maxit = maxit)
   result$loss <- result$loss[result$loss !=0 ]
   result$prediction <- result$P > 0.5
+  pred<-rep(output[2],n)
+  pred[which(result$P > 0.5)]<- output[1]
+  result$prediction <- pred
   result$accuracy <- mean(result$prediction == y)
-  
+  result$label <-output
   return(result)
 }
 
@@ -115,10 +122,12 @@ My_predict<-function(fit,newx){
   X<-cbind(rep(0,n),newx)
   p<-dim(X)[2]
   result <- X%*%fit$x
-  return( as.numeric(result>0))
+  tmp <-rep(fit$label[2],n)
+  tmp[which(result>0)]<-fit$label[1]
+  return( tmp)
 }
 
-sigma<-4
+sigma<-5
 set.seed(1)
 n<-1e4
 p<-1e2
@@ -128,11 +137,11 @@ X1<-matrix(mu1+rnorm(n*p,0,sigma),n,p,byrow = TRUE)
 X2<-matrix(mu2+rnorm(n*p,0,sigma),n,p,byrow = TRUE)
 ### Train data
 X<-rbind(X1,X2)
-y<-rep(c(1,0),each=n)
+y<-rep(c("a","b"),each=n)
 ### Test data
 test_x<-rbind( matrix(mu1+rnorm(n*p,0,sigma),n,p,byrow = TRUE), 
                matrix(mu2+rnorm(n*p,0,sigma),n,p,byrow = TRUE)  )
-test_y<-rep(c(1,0),each=n)
+test_y<-rep(c("a","b"),each=n)
 
 ##Accuracy of the training data and testing data
 
@@ -142,7 +151,7 @@ proc.time()-t1
 
 plot(fit$loss,main = "Convergence of the result")
 
-plot(fit$P[c(1:100,1e4+(1:100))],"Probability (Prediction)")
+plot(fit$P[c(1:100,1e4+(1:100))],main="Probability (Prediction)")
 my_prediction<-My_predict(fit,newx = test_x)
 fit$accuracy
 mean(my_prediction == test_y)
@@ -151,7 +160,6 @@ mean(my_prediction == test_y)
 
 
 ## GLMNET Package
-```{r}
 library(glmnet)
 
 ### result of glmnet 
@@ -169,13 +177,12 @@ mean(result2==test_y)
 ### train accuracy
 t1<-proc.time()
 fit0<-cv.glmnet(X,y,family = "binomial")
-result3<- predict(fit0, newx = X,  type = "class")
+result2<- predict(fit0, newx = X,  type = "class")
 proc.time()-t1
 mean(result2==y)
 ### test accuracy
 result2<- predict(fit0, newx = test_x,  type = "class")
 mean(result2==test_y)
-```
 
 library(dplyr)
 library(ggplot2)
