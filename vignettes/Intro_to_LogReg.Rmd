@@ -79,9 +79,9 @@ fit<-Logreg(X,y)
 We can judge the convergence of algorithm by plotting the loss function. My function will judge by itself and stop when it converges. And the default maximal iteration number is 5000. In the application, if the result diverge according to the plot, we can tune the parameter maxit until it converges, which is important to achieve a great prediction. (As for the optimization detail, we use adam-like algorithm, which is quite stable and converges quickly. Different from SGD, it is less sensitive to parameter, and the default parameter can deal with most of the condition.)
 
 ```{r}
-plot(fit$loss,main = "Convergence of the result",xlab = "iteration",ylab = "-loglikelihood")
+plot(fit$loss,main = "Convergence",xlab = "iteration",ylab = "-loglikelihood")
 
-plot(fit$P[c(1:100,1e4+(1:100))],main="Probability Distribution (Prediction)",xlab = "sample number",ylab = "probability of group 1")
+plot(fit$P[c(1:100,1e4+(1:100))],main="Probability (Prediction)",xlab = "sample number",ylab = "probability of group 1")
 ```
 
 
@@ -137,13 +137,13 @@ proc.time()-t1
 
 ### Accuracy of the training data (cv.glmnet, with cross validation and lasso penalty)
 ```{r}
-mean(result2==y)
+mean(result3==y)
 ```
 
 ### Accuracy of the testing data (cv.glmnet, with cross validation and lasso penalty)
 ```{r}
-result2<- predict(fit0, newx = test_x,  type = "class")
-mean(result2==test_y)
+result3<- predict(fit0, newx = test_x,  type = "class")
+mean(result3==test_y)
 ```
 
 
@@ -151,8 +151,8 @@ mean(result2==test_y)
 ```{r,echo=FALSE}
 
 class <- rep(c("train","test"),3)
-accuracy<-c(0.95585,0.9564,0.9208,0.92072,0.9207,0.95575)
-method<- rep(c("My_LogReg","glmnet","cv.glmnet"),each=2)
+accuracy<-c(0.95585,0.9564,0.9208,0.92072,0.9549,0.95575)
+method<- rep(c("Mine","glm","cv.glm"),each=2)
 dat<-data.frame(class,accuracy,method)
 
 ggplot(
