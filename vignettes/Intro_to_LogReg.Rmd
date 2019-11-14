@@ -73,32 +73,29 @@ Under most of the condition, we only need to input the n by p data matrix $X_{n,
 
 
 ```{r}
+t0<-proc.time()
 fit<-Logreg(X,y)
+t1<-proc.time()-t0
+
 ```
 
-We can judge the convergence of algorithm by plotting the loss function. My function will judge by itself and stop when it converges. And the default maximal iteration number is 5000. In the application, if the result diverge according to the plot, we can tune the parameter maxit until it converges, which is important to achieve a great prediction. (As for the optimization detail, we use adam-like algorithm, which is quite stable and converges quickly. Different from SGD, it is less sensitive to parameter, and the default parameter can deal with most of the condition.)
+We can judge the convergence of algorithm by plotting the loss function. My function will judge by itself and stop when it converges. And the default maximal iteration number is 5000. In the application, if the results diverge according to the plot, we can tune the parameter maxit until it converges (increase the "maxit" value), which is important to achieve a great prediction. (As for the optimization detail, we use adam-like algorithm, which is quite stable and converges quickly. Different from SGD, it is less sensitive to parameter, and the default parameter can already deal with most of the condition.)
 
 ```{r}
 plot(fit$loss,main = "Convergence",xlab = "iteration",ylab = "-loglikelihood")
-
 plot(fit$P[c(1:100,1e4+(1:100))],main="Probability (Prediction)",xlab = "sample number",ylab = "probability of group 1")
 ```
 
 
 
-##Accuracy of the training data and testing data
+##How to predict with my package
+
+We need to get the trained model(fit) first by using the above LogReg function. Then we just need two inputs (fit and the test matrix) to make a new prediction. The training accuracy is saved in fit\$accuracy and the training result (the estimate of parameter) is saved in fit\$x.
+
 ```{r}
 my_prediction<-My_predict(fit,newx = test_x)
-```
-
-### Accuracy of the training data 
-```{r}
-fit$accuracy
-```
-
-### Accuracy of the testing data
-```{r}
-mean(my_prediction == test_y)
+train_acc_mine<-fit$accuracy
+test_acc_mine<-mean(my_prediction == test_y)
 ```
 
 
@@ -106,21 +103,14 @@ mean(my_prediction == test_y)
 Glmnet is famous package, which use fortran to speed up the calculation, and it values as a frequently used package for statistican. But when dealing with big data, we can't judge the convergence of it, thus we may get a less satisfying result.
 
 ```{r}
-t1<-proc.time()
+t0<-proc.time()
 fit0<-glmnet(X,y,family = "binomial")
-result2<- predict(fit0, newx = X,  type = "class")
-proc.time()-t1
-```
-
-### Accuracy of the training data (glmnet)
-```{r}
-mean(result2==y)
-```
-
-### Accuracy of the testing data (glmnet)
-```{r}
+t2<-proc.time()-t0
+result1<- predict(fit0, newx = X,  type = "class")
 result2<- predict(fit0, newx = test_x,  type = "class")
-mean(result2==test_y)
+train_acc_glm<-mean(result1==y)
+test_acc_glm<-mean(result2==test_y)
+
 ```
 
 
@@ -129,21 +119,14 @@ mean(result2==test_y)
 Cv.glmnet is a very strong function with great maturity. It uses lasso & ridge penalty to improve the result and avoid overfitting, and cross validation is introduced to avoid the trouble of tuning. However, it may thus cost much more time as tradeoff.
 
 ```{r}
-t1<-proc.time()
+t0<-proc.time()
 fit0<-cv.glmnet(X,y,family = "binomial")
-result3<- predict(fit0, newx = X,  type = "class")
-proc.time()-t1
-```
+t3<-proc.time()-t0
+result1<- predict(fit0, newx = X,  type = "class")
+result2<- predict(fit0, newx = test_x,  type = "class")
+train_acc_cv<-mean(result1==y)
+test_acc_cv<-mean(result2==test_y)
 
-### Accuracy of the training data (cv.glmnet, with cross validation and lasso penalty)
-```{r}
-mean(result3==y)
-```
-
-### Accuracy of the testing data (cv.glmnet, with cross validation and lasso penalty)
-```{r}
-result3<- predict(fit0, newx = test_x,  type = "class")
-mean(result3==test_y)
 ```
 
 
@@ -151,7 +134,7 @@ mean(result3==test_y)
 ```{r,echo=FALSE}
 
 class <- rep(c("train","test"),3)
-accuracy<-c(0.95585,0.9564,0.9208,0.92072,0.9549,0.95575)
+accuracy<-c(train_acc_mine,test_acc_mine,train_acc_glm,test_acc_glm,train_acc_cv,test_acc_cv)
 method<- rep(c("Mine","glm","cv.glm"),each=2)
 dat<-data.frame(class,accuracy,method)
 
@@ -173,11 +156,13 @@ ggplot(
     position='dodge'
   )+coord_cartesian( ylim = c(0.90, 0.97))+ggtitle("Comparison (three models)") +
   theme(plot.title = element_text(hjust = 0.5))
+
+A<-matrix(c(t1[3],t2[3],t3[3]),1,3)
+colnames(A)<-c("My LogReg","Glmnet","cv.glmnet")
+rownames(A)<-"time (s)"
+A
 ```
 
-|    	|	My LogReg |Glmnet|cv.glmnet|
-|  ----  		| ----  |---|-----|
-| time   	| 5.37 | 2.17 | 19.31|
 
 We can infer from the plot that glmnet may fail to converge under the condition of big data, which may result from its stopping before convergence (which also explains why it takes less time).
 
