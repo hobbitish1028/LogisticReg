@@ -1,41 +1,9 @@
-// -*- mode: C++; c-indent-level: 4; c-basic-offset: 4; indent-tabs-mode: nil; -*-
 
-// we only include RcppEigen.h which pulls Rcpp.h in for us
+
 #include <Rcpp.h>
 #include <math.h>
 using namespace Rcpp;
 
-// via the depends attribute we tell Rcpp to create hooks for
-// RcppEigen so that the build process will know what to do
-//
-
-// simple example of creating two matrices and
-// returning the result of an operatioon on them
-//
-// via the exports attribute we tell Rcpp to make this function
-// available from R
-
-
-double muRcpp(NumericVector x){
-  int n = x.size();
-  double s = 0; 
-  for(int i = 0; i < n; i++){
-      s += x[i]; 
-  }
-  return s/n; 
-}
-
-double varRcpp(NumericVector x){
-  double mean = muRcpp(x);
-  double s = 0;
-  int n = x.size();
-  for(int i = 0; i < n; i++){
-    s += pow(x[i] - mean, 2.0);
-  }
-  return s/n; 
-}
-  
-  
 
 Rcpp:: NumericVector multi(Rcpp:: NumericMatrix X, Rcpp:: NumericVector beta, int nsites, int p){
   
@@ -51,15 +19,6 @@ Rcpp:: NumericVector multi(Rcpp:: NumericMatrix X, Rcpp:: NumericVector beta, in
   
   return result;
 }
-
-// [[Rcpp::export]]
-NumericVector l( double x, NumericVector a){
-  int n = a.size();
-  NumericVector xx(n,x);
-  
-  return pow(a,2.0) ;
-}
-
 
 
 // [[Rcpp::export]]
@@ -152,7 +111,6 @@ List LogRegcpp(NumericMatrix X, NumericVector x, NumericVector y ,int maxit){
     
   }
   
-  
 }
   
   return Rcpp::List::create(Rcpp::Named("x") = x,
@@ -161,7 +119,6 @@ List LogRegcpp(NumericMatrix X, NumericVector x, NumericVector y ,int maxit){
                             Rcpp::Named("m") = m,
                             Rcpp::Named("v") = v,
                             Rcpp::Named("loss") = loss);
-  //return P0;
 }
 
 
