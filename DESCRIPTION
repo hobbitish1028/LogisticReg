@@ -1,12 +1,16 @@
 Package: Logistic_package
 Type: Package
-Title: What the package does (short line)
+Title: Binomial Logistic Regression
 Version: 1.0
 Date: 2019-11-09
-Author: Who wrote it
-Maintainer: Who to complain to <yourfault@somewhere.net>
-Description: More about what it does (maybe more than one line)
-License: What license is it under?
-Imports: Rcpp (>= 1.0.2), RcppEigen (>= 0.3.3.5.0)
-LinkingTo: Rcpp, RcppEigen
+Author: Chang Wang
+Maintainer: Chang Wang <wangchan@umich.edu>
+Description: Perform Binomial Logistic Regression
+License: GPL-2
+Imports: Rcpp (>= 1.0.2)
+LinkingTo: Rcpp
 RoxygenNote: 6.1.1
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
