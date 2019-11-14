@@ -1,4 +1,4 @@
-Package: Logistic_Reg
+Package: Logistic_package
 Type: Package
 Title: Binomial Logistic Regression
 Version: 0.5 - 1 
