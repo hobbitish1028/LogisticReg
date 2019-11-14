@@ -26,6 +26,7 @@
 #'
 #'   @param Train_Acc the accuracy of the train set, defined as (number of right prediction divided by sample size)
 
+library(Rcpp)
 
 Logistic<-function(X, y, max_ite = 5000, alpha = 1){
   
@@ -94,25 +95,6 @@ LOSS<-function(X,x,y){
 }
 
 
-library(Rcpp)
-library(RcppEigen)
-
-sigma<-4
-
-set.seed(1)
-n<-1e4
-p<-1e2
-mu1<-rnorm(p)
-mu2<-rnorm(p)
-X1<-matrix(mu1+rnorm(n*p,0,sigma),n,p,byrow = TRUE)
-X2<-matrix(mu2+rnorm(n*p,0,sigma),n,p,byrow = TRUE)
-### Train data
-X<-rbind(X1,X2)
-y<-rep(c(1,0),each=n)
-### Test data
-test_x<-rbind( matrix(mu1+rnorm(n*p,0,sigma),n,p,byrow = TRUE), matrix(mu2+rnorm(n*p,0,sigma),n,p,byrow = TRUE)  )
-test_y<-rep(c(1,0),each=n)
-
 
 
 Logreg<-function(X,y,maxit = 5000){
@@ -136,6 +118,27 @@ My_predict<-function(fit,newx){
   return( as.numeric(result>0))
 }
 
+
+#### examples
+
+### generating data
+sigma<-4
+
+set.seed(1)
+n<-1e4
+p<-1e2
+mu1<-rnorm(p)
+mu2<-rnorm(p)
+X1<-matrix(mu1+rnorm(n*p,0,sigma),n,p,byrow = TRUE)
+X2<-matrix(mu2+rnorm(n*p,0,sigma),n,p,byrow = TRUE)
+### Train data
+X<-rbind(X1,X2)
+y<-rep(c(1,0),each=n)
+### Test data
+test_x<-rbind( matrix(mu1+rnorm(n*p,0,sigma),n,p,byrow = TRUE), matrix(mu2+rnorm(n*p,0,sigma),n,p,byrow = TRUE)  )
+test_y<-rep(c(1,0),each=n)
+
+
 ### Train with R
 t1<-proc.time()
 result1<-Logistic(X,y)
@@ -149,9 +152,9 @@ t1<-proc.time()
 fit<-Logreg(X,y)
 proc.time()-t1
 
-plot(result1$loss)
-plot(result1$P)
-result1$accuracy
+plot(fit$loss)
+plot(fit$P)
+fit$accuracy
 
 my_prediction<-My_predict(fit,newx = test_x)
 mean(my_prediction == test_y)
