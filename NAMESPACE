@@ -1,4 +1,4 @@
-useDynLib(Logistic_package)
+useDynLib(LogisticReg)
 import(RcppEigen)
 importFrom(Rcpp, evalCpp)
 exportPattern("^[[:alpha:]]+")
