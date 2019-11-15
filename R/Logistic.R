@@ -98,6 +98,7 @@ LOSS<-function(X,x,y){
 }
 
 Logreg<-function(X,y,maxit = 5000){
+  Rcpp::sourceCpp('src/LogRegCpp.cpp')
   n<-dim(X)[1]
   X<-cbind(rep(0,n),X)
   p<-dim(X)[2]
