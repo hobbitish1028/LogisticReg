@@ -34,6 +34,7 @@ Logistic<-function(X, y, max_ite = 5000, alpha = 1){
   
   m_nosadam<-0
   v_nosadam<-1
+  p<-dim(X)[2]
   x<-rep(0,p+1)
   X<-cbind(rep(1,dim(X)[1]),X)
   #test_x<-cbind(rep(1,dim(test_x)[1]),test_x)
@@ -96,9 +97,6 @@ LOSS<-function(X,x,y){
   sum( -P1*(y==1) - P0*(y==0)    )
 }
 
-
-
-
 Logreg<-function(X,y,maxit = 5000){
   n<-dim(X)[1]
   X<-cbind(rep(0,n),X)
@@ -129,6 +127,8 @@ My_predict<-function(fit,newx){
   return( tmp)
 }
 
+
+
 sigma<-5
 set.seed(1)
 n<-1e4
@@ -150,6 +150,9 @@ test_y<-rep(c("a","b"),each=n)
 t1<-proc.time()
 fit<-Logreg(X,y)
 proc.time()-t1
+
+##########
+# fit<-Logistic(X,y)
 
 plot(fit$loss,main = "Convergence of the result")
 
