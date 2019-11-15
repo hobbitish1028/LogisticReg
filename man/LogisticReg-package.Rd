@@ -1,24 +1,24 @@
-\name{Logistic_package-package}
-\alias{Logistic_package-package}
-\alias{Logistic_package}
+\name{LogisticReg-package}
+\alias{LogisticReg-package}
+\alias{LogisticReg}
 \docType{package}
 \title{
-\packageTitle{Logistic_package}
+\packageTitle{LogisticReg}
 }
 \description{
-\packageDescription{Logistic_package}
+\packageDescription{LogisticReg}
 }
 \details{
 
 The DESCRIPTION file:
-\packageDESCRIPTION{Logistic_package}
-\packageIndices{Logistic_package}
+\packageDESCRIPTION{LogisticReg}
+\packageIndices{LogisticReg}
 ~~ An overview of how to use the package, including the most important functions ~~
 }
 \author{
-\packageAuthor{Logistic_package}
+\packageAuthor{LogisticReg}
 
-Maintainer: \packageMaintainer{Logistic_package}
+Maintainer: \packageMaintainer{LogisticReg}
 }
 \references{
 ~~ Literature or other references for background information ~~
