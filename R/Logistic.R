@@ -131,7 +131,7 @@ My_predict<-function(fit,newx){
 
 
 
-sigma<-5
+sigma<-4
 set.seed(1)
 n<-1e4
 p<-1e2
@@ -141,16 +141,16 @@ X1<-matrix(mu1+rnorm(n*p,0,sigma),n,p,byrow = TRUE)
 X2<-matrix(mu2+rnorm(n*p,0,sigma),n,p,byrow = TRUE)
 ### Train data
 X<-rbind(X1,X2)
-y<-rep(c("a","b"),each=n)
+y<-rep(c(1,0),each=n)
 ### Test data
 test_x<-rbind( matrix(mu1+rnorm(n*p,0,sigma),n,p,byrow = TRUE), 
                matrix(mu2+rnorm(n*p,0,sigma),n,p,byrow = TRUE)  )
-test_y<-rep(c("a","b"),each=n)
+test_y<-rep(c(1,0),each=n)
 
 ##Accuracy of the training data and testing data
 
 t1<-proc.time()
-fit<-Logreg(X,y)
+fit<-Logreg(X,y,maxit = 200)
 proc.time()-t1
 
 ##########
@@ -158,7 +158,7 @@ proc.time()-t1
 
 plot(fit$loss,main = "Convergence of the result")
 
-plot(fit$P[c(1:100,1e4+(1:100))],main="Probability (Prediction)")
+plot(fit$P[c(1:100,n+(1:100))],main="Probability (Prediction)")
 my_prediction<-My_predict(fit,newx = test_x)
 fit$accuracy
 mean(my_prediction == test_y)
@@ -168,6 +168,28 @@ mean(my_prediction == test_y)
 
 ## GLMNET Package
 library(glmnet)
+library(glm2)
+library(glm.predict)
+
+
+### result of glmnet 
+### train accuracy
+t1<-proc.time()
+dat<-as.data.frame(cbind(y,X))
+fit0<-glm(y~.,data=dat,family=binomial(link=logit))
+proc.time()-t1
+
+(mean((fit0$fitted.values[1:n]>0.5) ) + mean((fit0$fitted.values[n+(1:n)]<0.5) ) )/2
+pred_glm <-cbind(rep(1,n),test_x) %*% fit0$coefficients
+plot(pred_glm)
+mean( pred_glm*rep(c(1,-1),each=n)>0  )
+
+
+
+### test accuracy
+result2<- predict(fit0, newx = test_x,  type = "class")
+mean(result2==test_y)
+
 
 ### result of glmnet 
 ### train accuracy
