@@ -101,7 +101,7 @@ Logreg<-function(X,y,maxit = 5000){
   library(Rcpp)
   Rcpp::sourceCpp('src/LogRegCpp.cpp')
   n<-dim(X)[1]
-  X<-cbind(rep(0,n),X)
+  X<-cbind(rep(1,n),X)
   p<-dim(X)[2]
   
   output<-unique(y)
@@ -121,7 +121,7 @@ Logreg<-function(X,y,maxit = 5000){
 
 My_predict<-function(fit,newx){
   n<-dim(newx)[1]
-  X<-cbind(rep(0,n),newx)
+  X<-cbind(rep(1,n),newx)
   p<-dim(X)[2]
   result <- X%*%fit$x
   tmp <-rep(fit$label[2],n)
@@ -133,7 +133,7 @@ My_predict<-function(fit,newx){
 
 sigma<-4
 set.seed(1)
-n<-1e4
+n<-1e5
 p<-1e2
 mu1<-rnorm(p)
 mu2<-rnorm(p)
@@ -143,9 +143,9 @@ X2<-matrix(mu2+rnorm(n*p,0,sigma),n,p,byrow = TRUE)
 X<-rbind(X1,X2)
 y<-rep(c(1,0),each=n)
 ### Test data
-test_x<-rbind( matrix(mu1+rnorm(n*p,0,sigma),n,p,byrow = TRUE), 
-               matrix(mu2+rnorm(n*p,0,sigma),n,p,byrow = TRUE)  )
-test_y<-rep(c(1,0),each=n)
+test_x<-rbind( matrix(mu1+rnorm(10*n*p,0,sigma),10*n,p,byrow = TRUE), 
+               matrix(mu2+rnorm(10*n*p,0,sigma),10*n,p,byrow = TRUE)  )
+test_y<-rep(c(1,0),each=10*n)
 
 ##Accuracy of the training data and testing data
 
@@ -156,7 +156,9 @@ proc.time()-t1
 ##########
 # fit<-Logistic(X,y)
 
-plot(fit$loss,main = "Convergence of the result")
+plot(51:length(fit$loss),fit$loss[-(1:50)],xlab="iteration" ,ylab = "loss" ,main = "Convergence of the result")
+
+
 
 plot(fit$P[c(1:100,n+(1:100))],main="Probability (Prediction)")
 my_prediction<-My_predict(fit,newx = test_x)
@@ -164,15 +166,12 @@ fit$accuracy
 mean(my_prediction == test_y)
 
 
-
-
 ## GLMNET Package
 library(glmnet)
 library(glm2)
-library(glm.predict)
 
 
-### result of glmnet 
+### result of glm
 ### train accuracy
 t1<-proc.time()
 dat<-as.data.frame(cbind(y,X))
@@ -180,15 +179,14 @@ fit0<-glm(y~.,data=dat,family=binomial(link=logit))
 proc.time()-t1
 
 (mean((fit0$fitted.values[1:n]>0.5) ) + mean((fit0$fitted.values[n+(1:n)]<0.5) ) )/2
+
 pred_glm <-cbind(rep(1,n),test_x) %*% fit0$coefficients
-plot(pred_glm)
-mean( pred_glm*rep(c(1,-1),each=n)>0  )
+#plot(pred_glm)
+mean( pred_glm*rep(c(1,-1),each=10*n)>0  )
+
+round(fit0$coefficients[1:20]*100)-round(fit$x[1:20]*100)
 
 
-
-### test accuracy
-result2<- predict(fit0, newx = test_x,  type = "class")
-mean(result2==test_y)
 
 
 ### result of glmnet 

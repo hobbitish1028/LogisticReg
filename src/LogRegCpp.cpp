@@ -58,11 +58,11 @@ List LogRegcpp(NumericMatrix X, NumericVector x, NumericVector y ,int maxit){
     NumericVector P0 =  multi(X ,x,n,p);
     
     for(int i=0;i<n;i++){
-      if(P0[i] < -10){
-        P0[i] = -10;
+      if(P0[i] < -20){
+        P0[i] = -20;
       }
-      if(P0[i] > 10){
-        P0[i] = 10;
+      if(P0[i] > 20){
+        P0[i] = 20;
       }
     }
     P0 = exp(-P0);
@@ -103,7 +103,7 @@ List LogRegcpp(NumericMatrix X, NumericVector x, NumericVector y ,int maxit){
       }  
       s = s/10;
       // if the loss converge, the break
-      if(s < 0.001){
+      if(s < 0.01){
         break;
       }
       
