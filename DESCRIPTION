@@ -7,7 +7,7 @@ Author: Chang Wang
 Maintainer: Chang Wang <wangchan@umich.edu>
 Description: Perform Binomial Logistic Regression
 License: GPL-2
-Imports:  Rcpp (>= 1.0.2),
+Imports: Rcpp (>= 1.0.2),
           glmnet,
           dplyr,
           ggplot2
