@@ -133,7 +133,7 @@ My_predict<-function(fit,newx){
 
 sigma<-4
 set.seed(1)
-n<-1e5
+n<-1e4
 p<-1e2
 mu1<-rnorm(p)
 mu2<-rnorm(p)
