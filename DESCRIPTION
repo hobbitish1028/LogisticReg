@@ -15,7 +15,7 @@ LinkingTo: Rcpp,
           glmnet,
           dplyr,
           ggplot2
-RoxygenNote: 6.1.1
+RoxygenNote: 7.0.0
 Suggests: 
     knitr,
     rmarkdown,

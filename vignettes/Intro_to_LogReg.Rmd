@@ -14,7 +14,7 @@ library(glm2)
 library(dplyr)
 library(ggplot2)
 #Rcpp::sourceCpp('~/Desktop/Courses/625Bigdata/Logistic_package/src/LogRegCpp.cpp')
-Rcpp::sourceCpp('~/Desktop/Courses/625Bigdata/LogisticReg/src/LogRegCpp.cpp')
+#Rcpp::sourceCpp('~/Desktop/Courses/625Bigdata/LogisticReg/src/LogRegCpp.cpp')
 Logreg<-function(X,y,maxit = 5000){
   n<-dim(X)[1]
   X<-cbind(rep(1,n),X)
